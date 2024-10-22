@@ -1,53 +1,58 @@
+#include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <unordered_set>
 #include <vector>
 using namespace std;
 
-bool issymbol(char ch) {
-    vector<char> symbols = {'/', '@', '#', '$', '%', '&', '*', '-', '+', '='};
-    for (char ele : symbols) {
-        if (ch == ele) {
-            return true;
-        }
+int findNumbers(int &i, string &line) {
+    string numString = "";
+    int n;
+    while (isdigit(line[i])) {
+        numString += line[i];
+        i++;
     }
-    return false;
+    if (numString.size() > 0) {
+        n = stoi(numString);
+        return n;
+    }
+    return 0;
 }
 
-int searchsymbols(int start, int end, int row, vector<string> &vec) {
+bool isSymbol(char ch) {
+    static const unordered_set<char> symbols = {'/', '@', '#', '$', '%', '&', '*', '-', '+', '='};
+    return symbols.find(ch) != symbols.end();
+}
+
+int searchAdjacentSymbols(int start, int end, int row, vector<string> &vec) {
     int count = 0;
     int size = vec[row].size();
-    //? Search the row above
-    if (row > 0) {
+
+    //? Lamda function for searching symbols in a row
+    auto searchSymbolsInRow = [&](int rowIndex) {
         for (int i = start - 1; i <= end + 1; i++) {
-            if (i >= 0 && i < size) {
-                if (issymbol(vec[row - 1][i])) {
-                    count++;
-                }
+            if (i >= 0 && i < size && isSymbol(vec[rowIndex][i])) {
+                count++;
             }
         }
+    };
+
+    //? Search the row above
+    if (row > 0) {
+        searchSymbolsInRow(row - 1);
     }
 
     //? Search the same row
-    if (start > 0) {
-        if (issymbol(vec[row][start - 1])) {
-            count++;
-        }
+    if (start > 0 && isSymbol(vec[row][start - 1])) {
+        count++;
     }
-    if (end < size - 1) {
-        if (issymbol(vec[row][end + 1])) {
-            count++;
-        }
+    if (end < size - 1 && isSymbol(vec[row][end + 1])) {
+        count++;
     }
 
     //? Search the row below
     if (row < vec.size() - 1) {
-        for (int i = start - 1; i <= end + 1; i++) {
-            if (i >= 0 && i < size) {
-                if (issymbol(vec[row + 1][i])) {
-                    count++;
-                }
-            }
-        }
+        searchSymbolsInRow(row + 1);
     }
 
     // cout << count << " ";
@@ -60,40 +65,31 @@ int main() {
         cerr << "Error opening file!!\n";
         return 1;
     }
-    string line;
+    string temp;
+
+    int totalLine = count(istreambuf_iterator<char>(file), istreambuf_iterator<char>(), '\n') + 1;
+    file.clear();
+    file.seekg(0, ios::beg);
+
     vector<string> vec;
-    vec.reserve(140);
+    vec.reserve(totalLine);
+
     //* MAIN LOGIC OF CODE
-    while (getline(file, line)) {
-        vec.push_back(line);
+    while (getline(file, temp)) {
+        vec.push_back(temp);
     }
-    vec.shrink_to_fit();
     int sum = 0;
     for (int i = 0; i < vec.size(); i++) {
-        string temp = vec[i];
-        for (int j = 0; j < temp.size(); j++) {
+        string line = vec[i];
+        for (int j = 0; j < line.size(); j++) {
             string numString = "";
             int n = 0;
 
             //? Finding a number in a line
-            if (isdigit(temp[j])) {
+            if (isdigit(line[j])) {
                 int start = j;
-                for (j; j < temp.size(); j++) {
-                    if (isdigit(temp[j])) {
-                        numString += temp[j];
-                        if (j == temp.size() - 1) {
-                            n = stoi(numString);
-                            // cout << n << " ";
-                            sum += n * searchsymbols(start, j, i, vec);
-                            break;
-                        }
-                    } else {
-                        n = stoi(numString);
-                        // cout << n << " ";
-                        sum += n * searchsymbols(start, j - 1, i, vec);
-                        break;
-                    }
-                }
+                n = findNumbers(j, line);
+                sum += n * searchAdjacentSymbols(start, j - 1, i, vec);
             }
         }
         // cout << "\n";

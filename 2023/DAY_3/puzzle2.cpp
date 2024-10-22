@@ -3,89 +3,53 @@
 #include <vector>
 using namespace std;
 
-vector<int> findnumbers(int index, int row, vector<string> &vec) {
-    string temp = vec[row];
-    vector<int> result;
-    for (int i = 0; i < temp.size(); i++) {
-        if (isdigit(temp[i])) {
-            int start = i;
-            int end = i;
-            string numString = "";
-            int n = 0;
-            for (i; i < temp.size(); i++) {
-                if (isdigit(temp[i])) {
-                    numString += temp[i];
-                    end = i;
-                    if (i == temp.size() - 1) {
-                        n = stoi(numString);
-                        if (index >= start - 1 && index <= end + 1) {
-                            result.push_back(n);
-                        }
-                        break;
-                    }
-                } else {
-                    n = stoi(numString);
-                    end = i - 1;
-                    if (index >= start - 1 && index <= end + 1) {
-                        result.push_back(n);
-                    }
-                    break;
-                }
+void findNumbersInRow(int index, string &line, vector<int> &result) {
+    for (int i = 0; i <= index + 1; i++) {
+
+        string numString = "";
+        int n, start = i, end = i;
+        while (isdigit(line[i])) {
+            numString += line[i];
+            end = i;
+            i++;
+        }
+        if (!numString.empty()) {
+            n = stoi(numString);
+            if (index >= start - 1 && index <= end + 1) {
+                result.push_back(n);
             }
         }
     }
-    result.shrink_to_fit();
-    return result;
 }
 
-int searchnumbers(int index, int row, vector<string> &vec) {
-    int prod = 1;
-    // cout << vec[row][index];
+int searchAdjacentNumbers(int index, int row, vector<string> &vec) {
     vector<int> result;
-    vector<int> temp;
 
     //? Search for numbers in the above row
     if (row > 0) {
         for (int i = index - 1; i <= index + 1; i++) {
             if (i >= 0 && i < vec[row].size() && isdigit(vec[row - 1][i])) {
-                //? Finding numbers in this ROW
-                temp = findnumbers(index, row - 1, vec);
-                for (int ele : temp) {
-                    // cout << ele << " ";
-                    result.push_back(ele);
-                }
+                findNumbersInRow(index, vec[row - 1], result);
                 break;
             }
         }
     }
     //? Search for numbers in the same row
     if ((index - 1 >= 0 && isdigit(vec[row][index - 1])) || (index + 1 < vec[row].size() && isdigit(vec[row][index + 1]))) {
-        temp = findnumbers(index, row, vec);
-        for (int ele : temp) {
-            // cout << ele << " ";
-            result.push_back(ele);
-        }
+        findNumbersInRow(index, vec[row], result);
     }
 
     //? Search for numbers in the bottom row
     if (row < vec.size() - 1) {
         for (int i = index - 1; i <= index + 1; i++) {
             if (i >= 0 && i < vec[row].size() && isdigit(vec[row + 1][i])) {
-                //? Finding numbers in this ROW
-                temp = findnumbers(index, row + 1, vec);
-                for (int ele : temp) {
-                    // cout << ele << " ";
-                    result.push_back(ele);
-                }
+                findNumbersInRow(index, vec[row + 1], result);
                 break;
             }
         }
     }
     if (result.size() == 2) {
-        for (int ele : result) {
-            prod *= ele;
-        }
-        return prod;
+        return result[0] * result[1];
     }
     return 0;
 }
@@ -110,7 +74,7 @@ int main() {
         for (int j = 0; j < temp.size(); j++) {
             //? Finding a symbol
             if ((temp[j]) == '*') {
-                sum += searchnumbers(j, i, vec);
+                sum += searchAdjacentNumbers(j, i, vec);
             }
         }
     }

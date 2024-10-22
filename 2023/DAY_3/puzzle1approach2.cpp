@@ -1,97 +1,58 @@
+#include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <unordered_set>
 #include <vector>
 using namespace std;
 
-bool issymbol(char ch) {
-    vector<char> symbols = {'/', '@', '#', '$', '%', '&', '*', '-', '+', '='};
-    for (char ele : symbols) {
-        if (ch == ele) {
-            return true;
-        }
-    }
-    return false;
+bool isSymbol(char ch) {
+    static const unordered_set<char> symbols = {'/', '@', '#', '$', '%', '&', '*', '-', '+', '='};
+    return symbols.find(ch) != symbols.end();
 }
 
-vector<int> findnumbers(int index, int row, vector<string> &vec) {
-    string temp = vec[row];
-    vector<int> result;
-    for (int i = 0; i < temp.size(); i++) {
-        if (isdigit(temp[i])) {
-            int start = i;
-            int end = i;
-            string numString = "";
-            int n = 0;
-            for (i; i < temp.size(); i++) {
-                if (isdigit(temp[i])) {
-                    numString += temp[i];
-                    end = i;
-                    if (i == temp.size() - 1) {
-                        n = stoi(numString);
-                        if (index >= start - 1 && index <= end + 1) {
-                            result.push_back(n);
-                        }
-                        break;
-                    }
-                } else {
-                    n = stoi(numString);
-                    end = i - 1;
-                    if (index >= start - 1 && index <= end + 1) {
-                        result.push_back(n);
-                    }
-                    break;
-                }
+void findNumbersInRow(int index, string &line, int &sum) {
+    for (int i = 0; i <= index + 1; i++) {
+
+        string numString = "";
+        int n, start = i, end = i;
+        while (isdigit(line[i])) {
+            numString += line[i];
+            end = i;
+            i++;
+        }
+        if (!numString.empty()) {
+            n = stoi(numString);
+            if (index >= start - 1 && index <= end + 1) {
+                sum += n;
             }
         }
     }
-    result.shrink_to_fit();
-    return result;
 }
 
-int searchnumbers(int index, int row, vector<string> &vec) {
+int searchAdjacentNumbers(int index, int row, vector<string> &vec) {
     int sum = 0;
-    // cout << vec[row][index];
-    vector<int> result;
-    vector<int> temp;
     //? Search for numbers in the above row
     if (row > 0) {
         for (int i = index - 1; i <= index + 1; i++) {
             if (i >= 0 && i < vec[row].size() && isdigit(vec[row - 1][i])) {
-                //? Finding numbers in this ROW
-                temp = findnumbers(index, row - 1, vec);
-                for (int ele : temp) {
-                    // cout << ele << " ";
-                    result.push_back(ele);
-                }
+                findNumbersInRow(index, vec[row - 1], sum);
                 break;
             }
         }
     }
     //? Search for numbers in the same row
     if ((index - 1 >= 0 && isdigit(vec[row][index - 1])) || (index + 1 < vec[row].size() && isdigit(vec[row][index + 1]))) {
-        temp = findnumbers(index, row, vec);
-        for (int ele : temp) {
-            // cout << ele << " ";
-            result.push_back(ele);
-        }
+        findNumbersInRow(index, vec[row], sum);
     }
 
     //? Search for numbers in the bottom row
     if (row < vec.size() - 1) {
         for (int i = index - 1; i <= index + 1; i++) {
             if (i >= 0 && i < vec[row].size() && isdigit(vec[row + 1][i])) {
-                //? Finding numbers in this ROW
-                temp = findnumbers(index, row + 1, vec);
-                for (int ele : temp) {
-                    // cout << ele << " ";
-                    result.push_back(ele);
-                }
+                findNumbersInRow(index, vec[row + 1], sum);
                 break;
             }
         }
-    }
-    for (int ele : result) {
-        sum += ele;
     }
 
     return sum;
@@ -104,20 +65,24 @@ int main() {
         return 1;
     }
     string line;
+
+    int totalLine = count(istreambuf_iterator<char>(file), istreambuf_iterator<char>(), '\n') + 1;
+    file.clear();
+    file.seekg(0, ios::beg);
+
     vector<string> vec;
-    vec.reserve(140);
+    vec.reserve(totalLine);
     //* MAIN LOGIC OF CODE
     while (getline(file, line)) {
         vec.push_back(line);
     }
-    vec.shrink_to_fit();
     int sum = 0;
     for (int i = 0; i < vec.size(); i++) {
         string temp = vec[i];
         for (int j = 0; j < temp.size(); j++) {
             //? Finding a symbol
-            if (issymbol(temp[j])) {
-                sum += searchnumbers(j, i, vec);
+            if (isSymbol(temp[j])) {
+                sum += searchAdjacentNumbers(j, i, vec);
             }
         }
     }
