@@ -5,6 +5,19 @@
 #include <vector>
 using namespace std;
 
+void findNumbers(int &i, string &line, unordered_set<int> &list) {
+    string numString = "";
+    int n;
+    while (isdigit(line[i])) {
+        numString += line[i];
+        i++;
+    }
+    if (numString.size() > 0) {
+        n = stoi(numString);
+        list.insert(n);
+    }
+}
+
 int main() {
     ifstream file("./input.txt");
     if (!file.is_open()) {
@@ -36,15 +49,8 @@ int main() {
         //? Finding numbers for winning list
         unordered_set<int> winningList;
         while (line[i] != '|') {
-            string numString = "";
-            int n;
-            while (isdigit(line[i])) {
-                numString += line[i];
-                i++;
-            }
-            if (numString.size() > 0) {
-                n = stoi(numString);
-                winningList.insert(n);
+            if (isdigit(line[i])) {
+                findNumbers(i, line, winningList);
             }
             i++;
         }
@@ -52,15 +58,8 @@ int main() {
         //? Collecting my numbers from the data
         unordered_set<int> myNumbers;
         while (i < line.size()) {
-            string numString = "";
-            int n;
-            while (isdigit(line[i])) {
-                numString += line[i];
-                i++;
-            }
-            if (numString.size() > 0) {
-                n = stoi(numString);
-                myNumbers.insert(n);
+            if (isdigit(line[i])) {
+                findNumbers(i, line, myNumbers);
             }
             i++;
         }
