@@ -82,7 +82,7 @@ char findPipeTypeOfS(const Location &s) {
 }
 
 int main() {
-    ifstream file("./input.txt");
+    ifstream file("./test.txt");
     if (!file.is_open()) {
         cerr << "Error opening file!!\n";
         return 1;
@@ -110,12 +110,16 @@ int main() {
     char startPipeType = findPipeTypeOfS(s);
     sketch[s.x][s.y] = startPipeType;
 
+    //? Loop Generation
+    vector<vector<char>> loop(xSize, vector<char>(ySize, ' '));
+
     //? Iterating to next pipes until we reach the starting point again
     Location prev = s;
     Location current = s;
     int loopLength = 0;
     do {
         char currentPipe = sketch[current.x][current.y];
+        loop[current.x][current.y] = currentPipe;
         Location temp = current;
         Location loc0 = current + directionLocation.at(pipeConnectionType.at(currentPipe)[0]);
         Location loc1 = current + directionLocation.at(pipeConnectionType.at(currentPipe)[1]);
@@ -128,8 +132,23 @@ int main() {
         loopLength++;
     } while (current != s);
 
-    //? Farthest point from the start of the loop would be the total LengthOfLoop/2
-    cout << loopLength / 2;
+    loop[s.x][s.y] = 'S';
+
+    //? Writing into the output file
+    ofstream outFile("./loop.txt");
+    if (!outFile.is_open()) {
+        cerr << "Error opening output file";
+        return 1;
+    }
+
+    for (vector x : loop) {
+        for (char ch : x) {
+            outFile << ch;
+        }
+        outFile << '\n';
+    }
+
+    cout << loopLength;
     file.close();
     return 0;
 }
