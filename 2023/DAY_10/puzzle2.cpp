@@ -1,10 +1,12 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <set>
 #include <unordered_map>
 #include <vector>
 using namespace std;
 
+//? Custom structure to store the Coordinates of the points of the loop
 struct Location {
     int x;
     int y;
@@ -13,7 +15,10 @@ struct Location {
         return x == otherLoc.x && y == otherLoc.y;
     }
     bool operator!=(const Location &otherLoc) const {
-        return !(*this == otherLoc);
+        return !(x == otherLoc.x && y == otherLoc.y);
+    }
+    bool operator<(const Location &otherLoc) const {
+        return x < otherLoc.x || (x == otherLoc.x && y < otherLoc.y);
     }
     Location operator+(const Location &otherLoc) const {
         return {x + otherLoc.x, y + otherLoc.y};
@@ -114,11 +119,13 @@ int main() {
     vector<vector<char>> loop(xSize, vector<char>(ySize, ' '));
 
     //? Iterating to next pipes until we reach the starting point again
+    set<Location> loopCoords;
     Location prev = s;
     Location current = s;
     int loopLength = 0;
     do {
         char currentPipe = sketch[current.x][current.y];
+        loopCoords.insert(current);
         loop[current.x][current.y] = currentPipe;
         Location temp = current;
         Location loc0 = current + directionLocation.at(pipeConnectionType.at(currentPipe)[0]);
@@ -132,23 +139,37 @@ int main() {
         loopLength++;
     } while (current != s);
 
-    loop[s.x][s.y] = 'S';
+    int pointInsideCount = 0;
 
-    //? Writing into the output file
-    ofstream outFile("./loop.txt");
-    if (!outFile.is_open()) {
-        cerr << "Error opening output file";
-        return 1;
-    }
-
-    for (vector x : loop) {
-        for (char ch : x) {
-            outFile << ch;
+    //? Iterating through all the points of the map
+    for (int i = 0; i < xSize; i++) {
+        for (int j = 0; j < ySize; j++) {
+            Location temp = {i, j};
+            if (find(loopCoords.begin(), loopCoords.end(), temp) == loopCoords.end()) {
+                int count = 0;
+                //? Find the closest point from the current point till the end of map
+                if (j < ySize / 2) {
+                    for (int iter = 0; iter <= j; iter++) {
+                        char ch = loop[i][iter];
+                        if (ch == 'J' || ch == 'L' || ch == '|') {
+                            count++;
+                        }
+                    }
+                } else {
+                    for (int iter = j; iter < ySize; iter++) {
+                        char ch = loop[i][iter];
+                        if (ch == 'J' || ch == 'L' || ch == '|') {
+                            count++;
+                        }
+                    }
+                }
+                if (count % 2 != 0) {
+                    pointInsideCount++;
+                }
+            }
         }
-        outFile << '\n';
     }
-
-    cout << loopLength;
+    cout << pointInsideCount;
     file.close();
     return 0;
 }
