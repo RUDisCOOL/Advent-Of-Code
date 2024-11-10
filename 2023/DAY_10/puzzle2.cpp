@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
-#include <set>
 #include <unordered_map>
 #include <vector>
 using namespace std;
@@ -119,13 +118,13 @@ int main() {
     vector<vector<char>> loop(xSize, vector<char>(ySize, ' '));
 
     //? Iterating to next pipes until we reach the starting point again
-    set<Location> loopCoords;
+    vector<Location> loopCoords;
     Location prev = s;
     Location current = s;
     int loopLength = 0;
     do {
         char currentPipe = sketch[current.x][current.y];
-        loopCoords.insert(current);
+        loopCoords.push_back(current);
         loop[current.x][current.y] = currentPipe;
         Location temp = current;
         Location loc0 = current + directionLocation.at(pipeConnectionType.at(currentPipe)[0]);

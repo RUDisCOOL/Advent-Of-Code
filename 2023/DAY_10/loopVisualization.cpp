@@ -15,7 +15,10 @@ struct Location {
         return x == otherLoc.x && y == otherLoc.y;
     }
     bool operator!=(const Location &otherLoc) const {
-        return !(*this == otherLoc);
+        return !(x == otherLoc.x && y == otherLoc.y);
+    }
+    bool operator<(const Location &otherLoc) const {
+        return x < otherLoc.x || (x == otherLoc.x && y < otherLoc.y);
     }
     Location operator+(const Location &otherLoc) const {
         return {x + otherLoc.x, y + otherLoc.y};
@@ -116,11 +119,13 @@ int main() {
     vector<vector<char>> loop(xSize, vector<char>(ySize, ' '));
 
     //? Iterating to next pipes until we reach the starting point again
+    vector<Location> loopCoords;
     Location prev = s;
     Location current = s;
     int loopLength = 0;
     do {
         char currentPipe = sketch[current.x][current.y];
+        loopCoords.push_back(current);
         loop[current.x][current.y] = currentPipe;
         Location temp = current;
         Location loc0 = current + directionLocation.at(pipeConnectionType.at(currentPipe)[0]);
@@ -137,19 +142,29 @@ int main() {
     loop[s.x][s.y] = 'S';
 
     //? Writing into the output file
-    ofstream outFile("./loop.txt");
+    ofstream outFile;
+    outFile.rdbuf()->pubsetbuf(0, 0);
+    outFile.open("./loop.txt");
     if (!outFile.is_open()) {
         cerr << "Error opening output file";
         return 1;
     }
 
+    //? Setting up the file with whitespaces
     for (vector x : loop) {
         for (char ch : x) {
-            outFile << ch;
-            this_thread::sleep_for(chrono::microseconds(300));
+            outFile << ' ';
         }
-        outFile << '\n';
-        outFile.flush();
+        outFile << endl;
+    }
+
+    //? Filling up the loop with points
+    for (const Location &loc : loopCoords) {
+        // cout << "(" << loc.x << "," << loc.y << ")" << endl;
+        outFile.seekp(loc.x * (ySize + 1) + loc.y);
+        char data = loop[loc.x][loc.y];
+        outFile.write(&data, sizeof(char));
+        this_thread::sleep_for(chrono::milliseconds(50));
     }
 
     cout << loopLength;
