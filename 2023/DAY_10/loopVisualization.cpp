@@ -151,11 +151,11 @@ int main() {
     }
 
     //? Setting up the file with whitespaces
-    for (vector x : loop) {
-        for (char ch : x) {
+    for (int i = 0; i < xSize; i++) {
+        for (int j = 0; j < ySize; j++) {
             outFile << ' ';
         }
-        outFile << endl;
+        outFile << "\n";
     }
 
     //? Filling up the loop with points
