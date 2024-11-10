@@ -1,6 +1,8 @@
 #include <algorithm>
+#include <chrono>
 #include <fstream>
 #include <iostream>
+#include <thread>
 #include <unordered_map>
 #include <vector>
 using namespace std;
@@ -144,8 +146,10 @@ int main() {
     for (vector x : loop) {
         for (char ch : x) {
             outFile << ch;
+            this_thread::sleep_for(chrono::microseconds(300));
         }
         outFile << '\n';
+        outFile.flush();
     }
 
     cout << loopLength;
