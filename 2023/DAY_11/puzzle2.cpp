@@ -75,7 +75,7 @@ int main() {
         for (int j = 0; j < emptyRows.size(); j++) {
             int x = emptyRows[j];
             if (loc.x > x) {
-                countX += 1;
+                countX += 999999;
             } else {
                 break;
             }
@@ -83,7 +83,7 @@ int main() {
         for (int j = 0; j < emptyCols.size(); j++) {
             int y = emptyCols[j];
             if (loc.y > y) {
-                countY += 1;
+                countY += 999999;
             } else {
                 break;
             }
