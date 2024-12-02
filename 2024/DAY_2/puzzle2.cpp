@@ -7,40 +7,35 @@
 using namespace std;
 
 bool checkSafe(const vector<int> &vec) {
-    if (vec.empty())
+    bool isSafe = true;
+    // # Lambda Function to check that if the difference of all the 2 consecutive values is greater than 0 and smaller than 4
+    auto diff = [](const vector<int> &vec) -> bool {
+        for (int i = 0; i < vec.size() - 1; i++) {
+            int diff = abs(vec[i] - vec[i + 1]);
+            if (!(0 < diff && diff < 4)) {
+                return false;
+            }
+        }
         return true;
-    bool isSafe = true, sortOrderDescending = vec[0] > vec[1];
-    // # Checking the condition if the vector is not empty and the element order is decreasing
-    if (sortOrderDescending) {
-        for (int j = 0; j < vec.size() - 1; j++) {
-            int a = vec[j], b = vec[j + 1], diff = abs(a - b);
-            if (!(a > b && diff > 0 && diff < 4)) {
-                isSafe = false;
-                break;
-            }
-        }
-    } else if (vec[0] < vec[1]) {
-        for (int j = 0; j < vec.size() - 1; j++) {
-            int a = vec[j], b = vec[j + 1], diff = abs(a - b);
-            if (!(a < b && diff > 0 && diff < 4)) {
-                isSafe = false;
-                break;
-            }
-        }
-    } else {
-        return false;
+    };
+
+    if (diff(vec)) {
+        // # If the record has differences in range (1,4) and is sorted in any one order then it is a Safe record
+        if (is_sorted(vec.begin(), vec.end(), [](int a, int b) -> bool { return a < b; }))
+            return true;
+        else if (is_sorted(vec.begin(), vec.end(), [](int a, int b) -> bool { return a > b; }))
+            return true;
     }
-    return isSafe;
+    return false;
 }
 
-bool isSafe(vector<int> vec) {
-    vector<int> temp = vec;
+bool isSafe(const vector<int> &vec) {
+    // # Function to check that the given record is Safe if we only change any one level of the record
     for (int i = 0; i < vec.size(); i++) {
+        vector<int> temp = vec;
         temp.erase(temp.begin() + i);
         if (checkSafe(temp)) {
             return true;
-        } else {
-            temp = vec;
         }
     }
     return false;
@@ -54,24 +49,22 @@ int main() {
     }
     //* MAIN LOGIC OF CODE
     string line;
-    int temp, x = 0;
-    vector<vector<int>> reports;
+    int temp, x = 0, sum = 0;
+    vector<int> reports;
     while (getline(file, line)) {
         stringstream ss(line);
-        reports.push_back(vector<int>());
+        reports.clear();
         while (ss >> temp) {
-            reports[x].push_back(temp);
+            reports.push_back(temp);
+        }
+        if (checkSafe(reports)) {
+            sum++;
+        } else if (isSafe(reports)) {
+            sum++;
         }
         x++;
     }
-    int sum = 0;
-    for (int i = 0; i < reports.size(); i++) {
-        if (checkSafe(reports[i])) {
-            sum++;
-        } else if (isSafe(reports[i])) {
-            sum++;
-        }
-    }
+
     cout << sum;
     file.close();
     return 0;
