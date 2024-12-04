@@ -4,92 +4,32 @@
 #include <vector>
 using namespace std;
 
-vector<string> generatePossibleStrings(const vector<string> &data, const int &i, const int &j) {
-    bool top = i - 3 >= 0;
-    bool left = j - 3 >= 0;
-    bool right = j + 3 < data[i].size();
-    bool bottom = i + 3 < data.size();
-    vector<string> possibilities;
-    // # Check Right
-    if (right) {
-        int n = i;
-        string str = "";
-        for (int m = j; m <= j + 3; m++) {
-            str += data[n][m];
+int countPossibleStrings(const vector<string> &data, const int &i, const int &j) {
+    static const string xmas = "XMAS";
+    int count = 0;
+    // # All the possible 8 directions that we have to find XMAS
+    static const vector<vector<int>> directions = {
+        {0, 0, -1, 1, -1, 1, -1, 1}, // * dir_y (vertical)
+        {1, -1, 0, 0, 1, 1, -1, -1}, // * dir_x (horizontal)
+    };
+    for (int k = 0; k < 8; k++) {
+        const int &dir_y = directions[0][k];
+        const int &dir_x = directions[1][k];
+        bool flag = true;
+        for (int itr = 1; itr < 4; itr++) {
+            int y = i + itr * dir_y;
+            int x = j + itr * dir_x;
+            // # If the coordinates are not in Bound OR the string does not Match with XMAS
+            if (!(x >= 0 && x < data[i].size() && y >= 0 && y < data.size()) || (data[y][x] != xmas[itr])) {
+                flag = false;
+                break;
+            }
         }
-        possibilities.push_back(str);
-    }
-
-    // # Check Left
-    if (left) {
-        int n = i;
-        string str = "";
-        for (int m = j; m >= j - 3; m--) {
-            str += data[n][m];
+        if (flag) {
+            count++;
         }
-        possibilities.push_back(str);
     }
-
-    // # Check Top
-    if (top) {
-        int m = j;
-        string str = "";
-        for (int n = i; n >= i - 3; n--) {
-            str += data[n][m];
-        }
-        possibilities.push_back(str);
-    }
-
-    // # Check Bottom
-    if (bottom) {
-        int m = j;
-        string str = "";
-        for (int n = i; n <= i + 3; n++) {
-            str += data[n][m];
-        }
-        possibilities.push_back(str);
-    }
-
-    // # Check TopRight
-    if (top && right) {
-        int n = i;
-        string str = "";
-        for (int m = j; m <= j + 3; m++, n--) {
-            str += data[n][m];
-        }
-        possibilities.push_back(str);
-    }
-
-    // # Check BottomRight
-    if (bottom && right) {
-        int n = i;
-        string str = "";
-        for (int m = j; m <= j + 3; m++, n++) {
-            str += data[n][m];
-        }
-        possibilities.push_back(str);
-    }
-
-    // # Check TopLeft
-    if (top && left) {
-        int n = i;
-        string str = "";
-        for (int m = j; m >= j - 3; m--, n--) {
-            str += data[n][m];
-        }
-        possibilities.push_back(str);
-    }
-
-    // # Check BottomLeft
-    if (bottom && left) {
-        int n = i;
-        string str = "";
-        for (int m = j; m >= j - 3; m--, n++) {
-            str += data[n][m];
-        }
-        possibilities.push_back(str);
-    }
-    return possibilities;
+    return count;
 }
 
 int findAllXMAS(const vector<string> &data) {
@@ -97,12 +37,7 @@ int findAllXMAS(const vector<string> &data) {
     for (int i = 0; i < data.size(); i++) {
         for (int j = 0; j < data[i].size(); j++) {
             if (data[i][j] == 'X') {
-                vector<string> temp = generatePossibleStrings(data, i, j);
-                for (const string &str : temp) {
-                    if (str == "XMAS") {
-                        count++;
-                    };
-                }
+                count += countPossibleStrings(data, i, j);
             }
         }
     }

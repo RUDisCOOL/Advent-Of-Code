@@ -5,17 +5,12 @@
 using namespace std;
 
 bool checkCross(const vector<string> &data, const int &i, const int &j) {
-    char topLeft = data[i - 1][j - 1];
-    char topRight = data[i - 1][j + 1];
-    char bottomLeft = data[i + 1][j - 1];
-    char bottomRight = data[i + 1][j + 1];
-    bool con1 = topLeft == 'S' && topRight == 'S' && bottomLeft == 'M' && bottomRight == 'M';
-    bool con2 = topLeft == 'M' && topRight == 'S' && bottomLeft == 'M' && bottomRight == 'S';
-    bool con3 = topLeft == 'M' && topRight == 'M' && bottomLeft == 'S' && bottomRight == 'S';
-    bool con4 = topLeft == 'S' && topRight == 'M' && bottomLeft == 'S' && bottomRight == 'M';
-
-    if (con1 || con2 || con3 || con4) {
-        return true;
+    string str = {data[i - 1][j - 1], data[i - 1][j + 1], data[i + 1][j + 1], data[i + 1][j - 1]};
+    static const vector<string> possibilities = {"SSMM", "MSSM", "MMSS", "SMMS"};
+    for (const string &a : possibilities) {
+        if (str == a) {
+            return true;
+        }
     }
     return false;
 }
