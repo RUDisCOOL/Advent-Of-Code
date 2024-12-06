@@ -54,7 +54,8 @@ int main() {
             if (map[i][j] == 'X') {
                 map[i][j] = '#';
                 bool isLoop = false;
-                set<pair<pair<int, int>, int>> visited;
+                // # A set of all the visited # or Turns
+                set<pair<pair<int, int>, int>> visitedTurns;
 
                 // # Resetting the location of x and y to the guard location
                 y = guardLoc.first;
@@ -64,6 +65,10 @@ int main() {
                 // # While loop condition to check if no loop is formed and the current index is inside the bounds
                 while (0 <= x && x < map[y].size() && 0 <= y && y < map.size() && !isLoop) {
                     if (map[y][x] == '#') {
+                        if (visitedTurns.find({{y, x}, itr}) != visitedTurns.end()) {
+                            isLoop = true;
+                        }
+                        visitedTurns.insert({{y, x}, itr});
                         y -= directions[itr].first;
                         x -= directions[itr].second;
                         // # Direction Changed
@@ -71,10 +76,6 @@ int main() {
                     }
                     y += directions[itr].first;
                     x += directions[itr].second;
-                    if (visited.find({{y, x}, itr}) != visited.end()) {
-                        isLoop = true;
-                    }
-                    visited.insert({{y, x}, itr});
                 }
                 if (isLoop) {
                     count++;
