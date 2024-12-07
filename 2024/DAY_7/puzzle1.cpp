@@ -10,13 +10,15 @@ bool isValid(const long &test, const vector<long> &nums) {
     int totalPossibilities = pow(2, nums.size() - 1);
     for (int i = 0; i < totalPossibilities; i++) {
         vector<long> numsCopy = nums;
+        int n = i;
         for (int j = 0; j < nums.size() - 1; j++) {
             int temp = numsCopy[j + 1];
-            if (i & (1 << j)) {
+            if (n % 2 == 0) {
                 numsCopy[j + 1] = temp + numsCopy[j];
             } else {
                 numsCopy[j + 1] = temp * numsCopy[j];
             }
+            n /= 2;
         }
         if (numsCopy[numsCopy.size() - 1] == test) {
             return true;
