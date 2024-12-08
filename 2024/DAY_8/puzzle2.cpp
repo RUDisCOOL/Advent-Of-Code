@@ -42,19 +42,22 @@ int main() {
                 pair<int, int> nodeDist = {coords[i].first - coords[j].first, coords[i].second - coords[j].second};
                 pair<int, int> antinode1 = {coords[i].first + nodeDist.first, coords[i].second + nodeDist.second};
                 pair<int, int> antinode2 = {coords[j].first - nodeDist.first, coords[j].second - nodeDist.second};
-                if (checkBounds(antinode1, map.size())) {
+                antinodes.insert(coords[i]);
+                antinodes.insert(coords[j]);
+                while (checkBounds(antinode1, map.size())) {
                     antinodes.insert(antinode1);
                     // cout << antinode1.first << "," << antinode1.second << "  ";
+                    antinode1 = {antinode1.first + nodeDist.first, antinode1.second + nodeDist.second};
                 }
-                if (checkBounds(antinode2, map.size())) {
+                while (checkBounds(antinode2, map.size())) {
                     antinodes.insert(antinode2);
                     // cout << antinode2.first << "," << antinode2.second << "  ";
+                    antinode2 = {antinode2.first - nodeDist.first, antinode2.second - nodeDist.second};
                 }
             }
         }
         // cout << "}" << endl;
     }
-
     cout << antinodes.size();
     file.close();
     return 0;
