@@ -36,7 +36,7 @@ int main() {
         i++;
     }
     long sum = 0;
-    int itr = 0, count = 0;
+    int itr = 0;
     while (disk[itr] != ".") {
         sum += stoi(disk[itr]) * itr;
         itr++;
