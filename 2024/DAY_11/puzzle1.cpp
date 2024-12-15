@@ -1,42 +1,35 @@
 #include <cmath>
-#include <forward_list>
 #include <fstream>
 #include <iostream>
+#include <vector>
 using namespace std;
-
-void printStones(const forward_list<long> &stones) {
-    for (const long &stone : stones)
-        cout << stone << " ";
-    cout << endl;
-}
 
 int countDigit(const long &num) {
     return floor(log10(num) + 1);
 }
 
-void splitStone(forward_list<long> &stones, forward_list<long>::iterator &itr) {
-    long stone = *itr;
+void splitStone(vector<long> &newStones, long &stone) {
     int digits = countDigit(stone);
-    long num1 = 0, num2 = 0;
+    long num2 = 0;
     for (int i = 0; i < digits / 2; i++) {
         num2 += (stone % 10) * pow(10, i);
         stone /= 10;
     }
-    *itr = stone;
-    stones.insert_after(itr, num2);
+    newStones.push_back(num2);
 }
 
-void blink(forward_list<long> &stones) {
-    for (auto itr = stones.begin(); itr != stones.end(); ++itr) {
-        if (*itr == 0) {
-            *itr = 1;
-        } else if (countDigit(*itr) % 2 == 0) {
-            splitStone(stones, itr);
-            ++itr;
+void blink(vector<long> &stones) {
+    vector<long> newStones;
+    for (long &stone : stones) {
+        if (stone == 0) {
+            stone = 1;
+        } else if (countDigit(stone) % 2 == 0) {
+            splitStone(newStones, stone);
         } else {
-            *itr *= 2024;
+            stone *= 2024;
         }
     }
+    stones.insert(stones.end(), newStones.begin(), newStones.end());
 }
 
 int main() {
@@ -47,18 +40,14 @@ int main() {
     }
     //* MAIN LOGIC OF CODE
     long stone;
-    forward_list<long> stones;
+    vector<long> stones;
     while (file >> stone) {
-        stones.push_front(stone);
+        stones.push_back(stone);
     }
-    stones.reverse();
-    // printStones(stones);
-
     for (int i = 0; i < 25; i++) {
         blink(stones);
-        // printStones(stones);
     }
-    cout << distance(stones.begin(), stones.end());
+    cout << stones.size();
     file.close();
     return 0;
 }
